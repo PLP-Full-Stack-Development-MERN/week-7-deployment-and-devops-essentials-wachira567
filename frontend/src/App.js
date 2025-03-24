@@ -8,7 +8,8 @@ function App() {
 
   // Fetch all posts
   useEffect(() => {
-    axios.get('http://localhost:5000/api/posts')
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    axios.get(`${API_URL}/api/posts`)
       .then(res => setPosts(res.data))
       .catch(err => console.error('Error fetching posts:', err));
   }, []);
@@ -21,7 +22,7 @@ function App() {
   // Create a new post
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post('http://localhost:5000/api/posts', newPost)
+    axios.post(`${API_URL}/api/posts`, newPost)
       .then(res => {
         setPosts([res.data, ...posts]); // Add new post to list
         setNewPost({ title: '', content: '', author: '' }); // Reset form
