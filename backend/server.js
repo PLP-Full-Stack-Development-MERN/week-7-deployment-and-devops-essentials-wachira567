@@ -7,8 +7,9 @@ require('dotenv').config();
 const app = express();
 
 app.use(cors({
-  origin: 'https://mernblogplp7.netlify.app' // Allow Netlify domain
+  origin: ['https://mernblogplp7.netlify.app', 'http://localhost:5000'] // Allow both Netlify domain and localhost
 }));
+
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
