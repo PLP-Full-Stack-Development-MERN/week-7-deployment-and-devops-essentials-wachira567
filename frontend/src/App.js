@@ -1,31 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
   const [posts, setPosts] = useState([]);
-  const [newPost, setNewPost] = useState({ title: '', content: '', author: '' });
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [author, setAuthor] = useState('');
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-  // Fetch all posts
   useEffect(() => {
-    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-    axios.get(`${API_URL}/api/posts`)
-      .then(res => setPosts(res.data))
+    fetch(`${API_URL}/api/posts`)
+      .then(res => res.json())
+      .then(data => setPosts(data))
       .catch(err => console.error('Error fetching posts:', err));
   }, []);
 
-  // Handle form input changes
-  const handleInputChange = (e) => {
-    setNewPost({ ...newPost, [e.target.name]: e.target.value });
-  };
-
-  // Create a new post
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post(`${API_URL}/api/posts`, newPost)
-      .then(res => {
-        setPosts([res.data, ...posts]); // Add new post to list
-        setNewPost({ title: '', content: '', author: '' }); // Reset form
+    fetch(`${API_URL}/api/posts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, content, author })
+    })
+      .then(res => res.json())
+      .then(data => {
+        setPosts([...posts, data]);
+        setTitle(''); setContent(''); setAuthor('');
       })
       .catch(err => console.error('Error creating post:', err));
   };
@@ -33,46 +33,37 @@ function App() {
   return (
     <div className="App">
       <h1>Personal Blog Platform</h1>
-
-      {/* Create Post Form */}
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          name="title"
-          value={newPost.title}
-          onChange={handleInputChange}
-          placeholder="Post Title"
-          required
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
         <textarea
-          name="content"
-          value={newPost.content}
-          onChange={handleInputChange}
-          placeholder="Post Content"
-          required
+          placeholder="Content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
         />
         <input
           type="text"
-          name="author"
-          value={newPost.author}
-          onChange={handleInputChange}
-          placeholder="Author Name"
+          placeholder="Author"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
         />
         <button type="submit">Add Post</button>
       </form>
-
-      {/* Display Posts */}
       <h2>Blog Posts</h2>
-      {posts.length === 0 ? (
-        <p>No posts yet.</p>
-      ) : (
+      {posts.length > 0 ? (
         posts.map(post => (
-          <div key={post._id} className="post">
+          <div key={post._id}>
             <h3>{post.title}</h3>
             <p>{post.content}</p>
-            <p><em>By {post.author} on {new Date(post.createdAt).toLocaleDateString()}</em></p>
+            <p>By: {post.author}</p>
           </div>
         ))
+      ) : (
+        <p>No posts yet.</p>
       )}
     </div>
   );
