@@ -11,9 +11,12 @@ function App() {
   useEffect(() => {
     fetch(`${API_URL}/api/posts`)
       .then(res => res.json())
-      .then(data => setPosts(data))
+      .then(data => {
+        console.log('Fetched posts:', data); // Debug log
+        setPosts(data);
+      })
       .catch(err => console.error('Error fetching posts:', err));
-  }, []);
+  }, [API_URL]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -24,6 +27,7 @@ function App() {
     })
       .then(res => res.json())
       .then(data => {
+        console.log('Created post:', data); // Debug log
         setPosts([...posts, data]);
         setTitle(''); setContent(''); setAuthor('');
       })
